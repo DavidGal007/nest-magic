@@ -39,12 +39,12 @@ import * as pathRoot from 'path'
 			type: 'mysql',
 			host: '45.152.46.1',
 			port: 3306,
-			username: process.env.USERNAME,
-			password: process.env.PASSWORD,
-			database: process.env.DATABASE,
+			username: 'u585021182_Davidgal',
+			password: 'Admin123%',
+			database: 'u585021182_nest_youtube',
 			synchronize: true,
-			entities: [pathRoot.resolve(__dirname, 'src', 'typeorm', 'entities', '*.{.ts}')] 
-			//entities: [User, Profile, Post, Video, CommentEntity, Subscription, BankAccount, BankCard, Product, ShortVideo, Likes, Unlikes]
+			//entities: [pathRoot.resolve(__dirname, 'src', 'typeorm', 'entities', '*.{.ts}')] 
+			entities: [User, Profile, Post, Video, CommentEntity, Subscription, BankAccount, BankCard, Product, ShortVideo, Likes, Unlikes]
 		}),
 		PassportModule.register({session: true}),
 		VideoModule,

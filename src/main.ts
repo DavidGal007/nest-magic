@@ -28,6 +28,9 @@ async function bootstrap() {
   })
   app.use(passport.initialize());
   app.use(passport.session());
-  await app.listen(5000);
+  await app.listen(5000, () => {
+    console.log("Server is started!");
+    
+  });
 }
 bootstrap();
