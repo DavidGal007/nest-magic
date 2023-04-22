@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Query, Param, HttpCode, Delete, Put, Body  } from '@nestjs/common';
-import { CurrentUser } from 'src/auth/decorators/user.decorator';
+import { Controller, Get, Post, Query, Param, HttpCode, Delete, Put, Body, UseGuards, Req  } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { VideoDto } from 'src/user/dto/video.dto';
+import { VidoeItemDto } from './dto/VideoDto';
 import { VideoService } from './video.service';
 
 @Controller('video')
@@ -42,8 +43,10 @@ export class VideoController {
 
   @HttpCode(200)
   @Post()
-  async createVideo(@CurrentUser('id') id: number) {
-    return this.videoService.create(id)
+  @UseGuards(JwtAuthGuard)
+  async createVideo(@Req() request: any, @Body() VideoDto: VidoeItemDto) {
+    const {id} = request.user
+    return this.videoService.create(id, VideoDto)
   }
 
   @HttpCode(200)
@@ -53,8 +56,14 @@ export class VideoController {
   }
 
   @HttpCode(200)
-  @Put('update-likes/:videoId')
+  @Post('update-likes/:videoId')
   async updateLikes(@Param('videoId') videoId: string) {
     return this.videoService.updateReaction(+videoId)
+  }
+
+  @HttpCode(200)
+  @Post('update-unlikes/:videoId')
+  async updateunLikes(@Param('videoId') videoId: string) {
+    return this.videoService.dislikeReaction(+videoId)
   }
 }

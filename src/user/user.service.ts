@@ -1,85 +1,60 @@
-import {
-	Injectable,
-	NotFoundException,
-	BadRequestException
-} from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { genSalt, getSalt, hash } from 'bcryptjs'
-import { Repository } from 'typeorm'
-import { UserDto } from './dto/user.dto'
-import { SubscriptionEntity } from './subscription.entity'
-import { UserEntity } from './user.entity'
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/typeorm/entities/User';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-	constructor(
-		@InjectRepository(UserEntity)
-		private readonly userRepository: Repository<UserEntity>,
-		@InjectRepository(SubscriptionEntity)
-		private readonly subscriptionRepository: Repository<SubscriptionEntity>
-	) {}
 
-	async byId(id: number) {
-		
-		
-		const user = await this.userRepository.findOne({
-			where: {
-				id
-			},
-			relations: {
-				videos: true,
-				subscriptions: {
-					toChannel: true
-				}
-			},
-			order: {
-				createdAt: 'DESC'
-			}
-		})
-		if (!user) throw new NotFoundException('User not found')
-		
-		
-		return user
-	}
-	async updateProfile(id: number, dto: UserDto) {
-		const user = await this.byId(id)
-		console.log(id);
-		
-		const isSameUser = await this.userRepository.findOneBy({ email: dto.email })
-		if (isSameUser && id !== isSameUser.id)
-			throw new BadRequestException('Email busy')
+    constructor(
+        @InjectRepository(User) private userRepository: Repository<User>
+    ) {}
 
-		if (dto.password) {
-			const salt = await genSalt(10)
-			user.password = await hash(dto.password, salt)
-		}
 
-		user.email = dto.email
-		user.name = dto.name
-		user.description = dto.description
-		user.avatarPath = dto.avatarPath
+    findUsers() {
+        return this.userRepository.find({
+            relations: {
+                videos: true,
+                likes: {
+                    user: true,
+                    videos: true
+                },
+                subscribers: {
+                    fromUser: true
+                },
+                subscriptions: {
+                  toChannel: true
+                }
+            }, 
+            
+        });
+    }
 
-		return this.userRepository.save(user)
-	}
+    async byId(id: number) {
 
-	async subscribe(id: number, channelId: number) {
-		const data = {
-			toChannel: { id: channelId },
-			fromUser: { id: id }
-		}
-		const isSubscribed = await this.subscriptionRepository.findOneBy(data)
-		if (!isSubscribed) {
-			const newSubscription = await this.subscriptionRepository.create(data)
-			await this.subscriptionRepository.save(newSubscription)
 
-			return true
-		}
+        const user = await this.userRepository.findOne({
+            where: {
+                id
+            },
+            relations: {
+                videos: true,
+                subscriptions: {
+                    toChannel: true
+                },
+                subscribers: {
+                    fromUser: true
+                }
+            },
+            order: {
+                createdAt: 'DESC'
+            }
+        })
 
-		await this.subscriptionRepository.delete({toChannel: {id: channelId}})
-		return false
-	}
 
-	async getAll() {
-		return this.userRepository.find()
-	}
+        if (!user) throw new NotFoundException('User not found!')
+
+
+        return user
+    }
 }

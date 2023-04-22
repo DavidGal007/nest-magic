@@ -1,77 +1,99 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthDto } from 'src/user/dto/auth.dto';
-import { UserEntity } from 'src/user/user.entity';
+import { AuthLoginDto, AuthRegisterDto } from 'src/user/dto/auth.dto';
 import { Repository } from 'typeorm';
 import { compare, genSalt, hash } from 'bcryptjs'
+import { User } from 'src/typeorm/entities/User';
+import { UserDetails } from 'src/utils/types';
+import { CreateUserDto } from './dto/CreateUserDto';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(UserEntity)
-        private readonly userRepository: Repository<UserEntity>,
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
         private readonly jwtService: JwtService
     ) {}
 
-    async register(dto: AuthDto) {
-        const oldUser = await this.userRepository.findOneBy({
-            email: dto.email
-        })
-        if(oldUser) throw new BadRequestException('Email busy')
+    async login(userDto: CreateUserDto) {
+      const user = await this.validateUser(userDto)
+      return {
+        user: this.returnUserFields(user),
+        access_token: await this.generateToken(user.id)
+      }
+  }
 
-        const salt = await genSalt(10)
-        const newUser = await this.userRepository.create({
-            email: dto.email,
-            password: await hash(dto.password, salt)
-        })
+  async getUserByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email: email},
+    });
+    return user;
+  }
 
-        const user = await this.userRepository.save(newUser)
-        return {
-            user: this.returnUserFields(user),
-            accessToken: await this.issueAccessToken(user.id)
-        }
+  async registration(userDto: CreateUserDto) {
+      const candidate = await this.getUserByEmail(userDto.email)
+      if(candidate) {
+          throw new HttpException('Email has been exist!', HttpStatus.BAD_REQUEST)
+      }
+      const hashPassword = await hash(userDto.password, 5);
+      const newUser = await this.userRepository.create({
+          ...userDto,
+          password: hashPassword
+      })
+      //const payload: any = { id: user.id };
+       const user = await this.userRepository.save(newUser)
+      return {
+        user: this.returnUserFields(user),
+        access_token: await this.generateToken(user.id)
+      }
+  }
+
+  async generateToken(userId: number) {
+    const payload = { id: userId };
+    
+      return this.jwtService.sign(payload)
+      
+  }
+
+  returnUserFields(user: User) {
+    return {
+        id: user.id,
+        email: user.email
+    }
+  }
+
+  private async validateUser(userDto: CreateUserDto) {
+      const user = await this.getUserByEmail(userDto.email)
+      const passwordEquals = await compare(userDto.password, user.password);
+      if(user && passwordEquals) {
+          return user;
+      }
+      throw new UnauthorizedException({
+          message: "Wrong password or Email!"
+      })
+  }
+
+    async validateUserGoogle(details: UserDetails) {
+        console.log(details);
+        console.log('AuthService');
+        
+        const user = await this.userRepository.findOneBy({
+            email: details.email
+        })
+        console.log(user);
+        
+        if(user) return user;
+         console.log('User not found');
+         
+        const newUser = this.userRepository.create(details)
+        return this.userRepository.save(newUser)
     }
 
-    async login(dto: AuthDto) {
-        const user = await this.validateUser(dto)
-
-        return {
-            user: this.returnUserFields(user),
-            accessToken: await this.issueAccessToken(user.id)
-        }
-    }
-
-    async validateUser(dto: AuthDto) {
-        const user = await this.userRepository.findOne({
-            where: {
-                email: dto.email
-            },
-            select: ['id', 'email', 'password']
-        })
-
-        if(!user) throw new NotFoundException('User not founde')
-
-        const isValidPassword = await compare(dto.password, user.password)
-        if(!isValidPassword) throw new UnauthorizedException('password is wrong')
-
+    async findUser(id: number) {
+        const user = await this.userRepository.findOneBy({id});
         return user
     }
 
-    async issueAccessToken(userId: number) {
-        const data = {
-            id: userId
-        }
-
-        return await this.jwtService.signAsync(data, {
-            expiresIn: '31d'
-        })
-    }
-
-    returnUserFields(user: UserEntity) {
-        return {
-            id: user.id,
-            email: user.email
-        }
-    }
 }
+
