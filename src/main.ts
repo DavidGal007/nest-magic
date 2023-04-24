@@ -10,7 +10,7 @@ async function bootstrap() {
     origin: 'http://localhost:3000',
   })
   app.setGlobalPrefix('api');
-  app.use(cookieParser('MY SECRET'));
+  app.use(cookieParser());
   app.use(
     session({
       secret: 'my-secretdadafawgefafa',
