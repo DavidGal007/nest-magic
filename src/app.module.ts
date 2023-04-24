@@ -24,7 +24,8 @@ import { ShortVideo } from './typeorm/entities/ShortVideo'
 import { ShortsModule } from './shorts/shorts.module';
 import { Likes } from './typeorm/entities/Likes'
 import { Unlikes } from './typeorm/entities/Unlikes'
-import { Base as BaseRoot } from './typeorm/Base'
+import { Base } from './typeorm/Base'
+
 @Module({
 	imports: [
 		//GatewayModule,
@@ -44,7 +45,7 @@ import { Base as BaseRoot } from './typeorm/Base'
 			database: 'u585021182_nest_youtube',
 			synchronize: true,
 			//entities: [pathRoot.resolve(__dirname, 'src', 'typeorm', 'entities', '*.{.ts}')] 
-			entities: [BaseRoot, User, Profile, Post, Video, CommentEntity, Subscription, BankAccount, BankCard, Product, ShortVideo, Likes, Unlikes]
+			entities: [Base, User, Profile, Post, Video, CommentEntity, Subscription, BankAccount, BankCard, Product, ShortVideo, Likes, Unlikes]
 		}),
 		PassportModule.register({session: true}),
 		VideoModule,

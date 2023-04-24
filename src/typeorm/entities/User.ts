@@ -1,4 +1,4 @@
-import { Column,  Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column,  Entity, JoinColumn, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { Base } from "../Base";
 import { BankAccount } from "./BankAccount";
 import { Post } from "./Post";

@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Query, Param, HttpCode, Delete, Put, Body, UseGuards, Req  } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { VideoDto } from 'src/user/dto/video.dto';
-import { VidoeItemDto } from './dto/VideoDto';
 import { VideoService } from './video.service';
 
 @Controller('video')
@@ -44,7 +43,7 @@ export class VideoController {
   @HttpCode(200)
   @Post()
   @UseGuards(JwtAuthGuard)
-  async createVideo(@Req() request: any, @Body() VideoDto: VidoeItemDto) {
+  async createVideo(@Req() request: any, @Body() VideoDto: VideoDto) {
     const {id} = request.user
     return this.videoService.create(id, VideoDto)
   }

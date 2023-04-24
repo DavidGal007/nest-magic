@@ -1,6 +1,6 @@
-import { Base } from 'src/utils/base'
 import { Entity, ManyToOne, JoinColumn} from 'typeorm'
 import { User } from './User'
+import { Base } from '../Base'
 
 @Entity('subscription')
 export class Subscription extends Base {
