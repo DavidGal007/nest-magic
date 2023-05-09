@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Video } from 'src/typeorm/entities/Video'
-import { VideoDto } from 'src/user/dto/video.dto'
 import { FindOptionsWhereProperty, ILike, MoreThan, Repository } from 'typeorm'
 import { Likes } from 'src/typeorm/entities/Likes'
 import { User } from 'src/typeorm/entities/User'
 import fs from 'fs'
 import { exec } from 'child_process'
 import { Unlikes } from 'src/typeorm/entities/Unlikes'
+import { VideoDto } from './dto/video.dto'
 
 @Injectable()
 export class VideoService {

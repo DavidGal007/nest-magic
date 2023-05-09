@@ -28,7 +28,7 @@ import { Base } from './typeorm/Base'
 
 @Module({
 	imports: [
-		//GatewayModule,
+		
 		ConfigModule.forRoot({
 			envFilePath: '.development.env'
 		}),
@@ -43,8 +43,7 @@ import { Base } from './typeorm/Base'
 			username: 'u585021182_Davidgal',
 			password: 'Admin123%',
 			database: 'u585021182_nest_youtube',
-			synchronize: true,
-			//entities: [pathRoot.resolve(__dirname, 'src', 'typeorm', 'entities', '*.{.ts}')] 
+			synchronize: true, 
 			entities: [Base, User, Profile, Post, Video, CommentEntity, Subscription, BankAccount, BankCard, Product, ShortVideo, Likes, Unlikes]
 		}),
 		PassportModule.register({session: true}),
@@ -57,6 +56,6 @@ import { Base } from './typeorm/Base'
 		
 	],
 	controllers: [AppController],
-	providers: [AppService ] //MyGateway 
+	providers: [AppService ]
 })
 export class AppModule {}

@@ -1,7 +1,6 @@
-import { Injectable, NotFoundException, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, UnauthorizedException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AuthLoginDto, AuthRegisterDto } from 'src/user/dto/auth.dto';
 import { Repository } from 'typeorm';
 import { compare, genSalt, hash } from 'bcryptjs'
 import { User } from 'src/typeorm/entities/User';

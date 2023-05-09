@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Query, Param, HttpCode, Delete, Put, Body, UseGuards, Req  } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { VideoDto } from 'src/user/dto/video.dto';
 import { VideoService } from './video.service';
+import { VideoDto } from './dto/video.dto';
 
 @Controller('video')
 export class VideoController {
